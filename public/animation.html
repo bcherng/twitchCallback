@@ -18,6 +18,9 @@
 
           // Reset animation play state to play the new GIF
           document.getElementById('playOnceGif').style.animationPlayState = 'running';
+          document.getElementById('playOnceGif').addEventListener('animationiteration', function () {
+            this.style.animationPlayState = 'paused';
+      });
         })
         .catch(error => {
           console.error('Error fetching /sf:', error);
@@ -26,9 +29,7 @@
 
     // Call updateGif initially
     updateGif();
-    document.getElementById('playOnceGif').addEventListener('animationiteration', function () {
-        this.style.animationPlayState = 'paused';
-      });
+ 
     // Set up a setInterval to call updateGif every 3 seconds
     setInterval(updateGif, 3000);
   </script>
