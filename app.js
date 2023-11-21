@@ -1,10 +1,8 @@
 const crypto = require('crypto')
 const express = require('express');
-const { access } = require('fs');
 const app = express();
 const port = 443;
 const path = require('path');
-const tmi = require('tmi.js');
 const ratge = {
     stars: 0
 };
@@ -68,47 +66,45 @@ const decreaseRates = [
     0.6,    //24
 ]
 
-// async function getToken() {
-//     try {
-//         const body = new URLSearchParams({
-//             'grant_type': 'refresh_token',
-//             'refresh_token': refreshToken,
-//             'client_id': client_id,
-//             'client_secret': client_secret
-//         });
-//         const response = await fetch("https://id.twitch.tv/oauth2/token", {
-//             method: 'POST',
-//             headers: {
-//                 'Content-Type': 'application/x-www-form-urlencoded',
-//             },
-//             body: body
-//         });
+const WebSocket = require('websocket').w3cwebsocket;
 
-//         if (!response.ok) {
-//             throw new Error(`HTTP error! Status: ${response.status}`);
-//         }
+const twitchWebSocketUrl = 'wss://irc-ws.chat.twitch.tv:443';
+const twitchUsername = 'kahyogbot';
+const twitchOAuthToken = 'oauth:4dm1ikh4capesl2po4jlap9logf0l4';
 
-//         const data = await response.json(); // Assuming the response is in JSON format
-//         return data;
-//     } catch (error) {
-//         console.error('Error refreshing token:', error);
-//         // Handle the error, e.g., log it or take appropriate action
-//     }
-// }
-const client = new tmi.Client({
-    identity: {
-        username: 'kahyogbot',
-        password: `oauth:4dm1ikh4capesl2po4jlap9logf0l4`
-    },
-    channels: ['kahyo_gms']
-});
+const connection = new WebSocket(twitchWebSocketUrl);
 
-client.connect().catch();
-function sendMessage(message) {
-    
-    client.say("kahyo_gms", message).catch();
-}
+connection.onopen = () => {
+  console.log('WebSocket Connection Opened');
 
+  // Send PASS and NICK commands to authenticate with Twitch
+  connection.send(`PASS ${twitchOAuthToken}`);
+  connection.send(`NICK ${twitchUsername}`);
+};
+
+connection.onerror = (error) => {
+  console.error(`WebSocket Error: ${error}`);
+};
+
+connection.onmessage = (event) => {
+    if (event.type === 'message') {
+      const message = event.data;
+  
+      if (message.startsWith('PING')) {
+        // Respond to PING with PONG to keep the connection alive
+        connection.send('PONG :tmi.twitch.tv');
+      } else {
+        // Handle Twitch chat messages here
+        console.log('Received message:', message);
+      }
+    }
+  };
+  
+
+connection.onclose = () => {
+    console.log('WebSocket Connection Closed');
+  };
+  
 
 let counter = 0;
 
@@ -146,31 +142,18 @@ app.post('/starforce', (req, res) => {
     let hmac = HMAC_PREFIX + getHmac(secret, message);  // Signature to compare
 
     if (true === verifyMessage(hmac, req.headers[TWITCH_MESSAGE_SIGNATURE])) {
-        console.log("signatures match");
-
-        // Get JSON object from body, so you can process the message.
         let notification = JSON.parse(req.body);
-        // (async () => {
-        //     try {
-        //         const result = await getToken();
-        //         console.log(result);
-        //         refreshToken = data.refresh_token;
-        //         accessToken = data.access_token;
-        //     } catch (error) {
-        //         console.error('Error:', error);
-        //     }
-        // })();
         if (MESSAGE_TYPE_NOTIFICATION === req.headers[MESSAGE_TYPE]) {
             console.log("start");
             if (Math.random() < successRates[ratge.stars]) {
                 ratge.stars += 1;
-                sendMessage("Sucess! Ratge is now " + ratge.stars + " stars");
+                connection.send('PRIVMSG #kahyo_gms :Sucess! Ratge is now ' + ratge.stars + ' stars');
             } else if (Math.random() < decreaseRates[ratge.stars]) {
                 ratge.stars -= 1;
-                sendMessage("Failed... Ratge is now " + ratge.stars + " stars");
+                connection.send('PRIVMSG #kahyo_gms :Failed.... Ratge is now ' + ratge.stars + ' stars');
             } else {
-                ratge.stars = 12;
-               sendMessage("Destroyed. Ratge is back to 12 stars");
+                ratge.stars = 12; 
+                connection.send('PRIVMSG #kahyo_gms :Destroyed.  Ratge is back to 12 stars');
             }
             console.log("finish");
             res.sendStatus(204);
@@ -269,3 +252,32 @@ function verifyMessage(hmac, verifySignature) {
 
 
 module.exports = app;
+
+
+// async function getToken() {
+//     try {
+//         const body = new URLSearchParams({
+//             'grant_type': 'refresh_token',
+//             'refresh_token': refreshToken,
+//             'client_id': client_id,
+//             'client_secret': client_secret
+//         });
+//         const response = await fetch("https://id.twitch.tv/oauth2/token", {
+//             method: 'POST',
+//             headers: {
+//                 'Content-Type': 'application/x-www-form-urlencoded',
+//             },
+//             body: body
+//         });
+
+//         if (!response.ok) {
+//             throw new Error(`HTTP error! Status: ${response.status}`);
+//         }
+
+//         const data = await response.json(); // Assuming the response is in JSON format
+//         return data;
+//     } catch (error) {
+//         console.error('Error refreshing token:', error);
+//         // Handle the error, e.g., log it or take appropriate action
+//     }
+// }
