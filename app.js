@@ -9,7 +9,7 @@ const ratge = {
     stars: 0
 };
 let accessToken;
-let refreshToken;
+let refreshToken = process.env.refreshToken;
 const client_id = process.env.clientID;
 const client_secret = process.env.clientSecret;
 const successRates = [
