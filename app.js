@@ -80,6 +80,7 @@ client.on('message', (channel, tags, message, self) => {
 });
 client.on('connected', (address, port) => {
     console.log(`Bot connected to ${address}:${port}`);
+    client.say('kahyo_gms', "test");
   });
 client.connect();
 			
@@ -111,7 +112,7 @@ app.get("/", (req,res) => {
 })
 app.get("/starforce", (req,res) => {
     res.setHeader('Content-Type', 'text/html');
-    res.end("The counter is: " + ratge.stars);
+    res.end("The star is: " + ratge.stars);
 })
 
 app.post('/starforce', (req, res) => {
@@ -234,6 +235,8 @@ function getHmac(secret, message) {
 function verifyMessage(hmac, verifySignature) {
     return crypto.timingSafeEqual(Buffer.from(hmac), Buffer.from(verifySignature));
 }
+
+
 
 
 module.exports = app;
