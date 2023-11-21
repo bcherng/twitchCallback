@@ -67,7 +67,6 @@ const decreaseRates = [
     0.6,    //24
 ]
 async function sendMessage(message) {
-    console.log(message);
     const data = new URLSearchParams({
         'grant_type': 'refresh_token',
         'refresh_token': refreshToken,
@@ -75,52 +74,49 @@ async function sendMessage(message) {
         'client_secret': client_secret
     });
 
-    console.log(data);
-    const response = await fetch("https://id.twitch.tv/oauth2/token", {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: data,
-    });
-    console.log(response.json());
-    
-    // .then(response => {
-    //     console.log(response.json());
-    //     return response.json();
-    // }).then(data => {
-    //     console.log('Token refreshed successfully:', data);
-    //     refreshToken = data.refresh_token;
-    //     accessToken = data.access_token;
+    try {
+        const response = await fetch("https://id.twitch.tv/oauth2/token", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: data,
+        });
 
-    //     // Print the new access token
-    //     console.log('New Access Token:', accessToken);
+        const data = await response.json();
+        console.log('Token refreshed successfully:', data);
 
-    //     const opts = {
-    //         identity: {
-    //             username: 'kahyo_gms',
-    //             password: `oauth:${accessToken}`
-    //         },
-    //         channels: ['kahyo_gms']
-    //     };
+        refreshToken = data.refresh_token;
+        accessToken = data.access_token;
 
-    //     const client = new tmi.Client(opts);
+        // Print the new access token
+        console.log('New Access Token:', accessToken);
 
-    //     client.on('connected', (address, port) => {
-    //         // This event is triggered when the client is successfully connected
-    //         console.log(`Connected to ${address}:${port}`);
-    //         // Now you can send your message
-    //         client.say("kahyo_gms", message);
-    //     });
+        const opts = {
+            identity: {
+                username: 'kahyo_gms',
+                password: `oauth:${accessToken}`
+            },
+            channels: ['kahyo_gms']
+        };
 
-    //     client.say("kahyo_gms", "test");
-    //     client.say("kahyo_gms", message);
+        const client = new tmi.Client(opts);
 
-    // }).catch(error => {
-    //     console.error('Error refreshing token:', error);
-    //     // Handle the error, e.g., log it or take appropriate action
-    // });
+        client.on('connected', (address, port) => {
+            // This event is triggered when the client is successfully connected
+            console.log(`Connected to ${address}:${port}`);
+            // Now you can send your message
+            client.say("kahyo_gms", message);
+        });
+
+        client.say("kahyo_gms", "test");
+        client.say("kahyo_gms", message);
+    } catch (error) {
+        console.error('Error refreshing token:', error);
+        // Handle the error, e.g., log it or take appropriate action
+    }
 }
+
 
 
 let counter = 0;
