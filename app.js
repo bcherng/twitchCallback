@@ -12,6 +12,13 @@ let accessToken;
 let refreshToken = process.env.refreshToken;
 const client_id = process.env.clientID;
 const client_secret = process.env.clientSecret;
+let opts = {
+    identity: {
+        username: 'test',
+        password: `oauth:${accessToken}`
+    },
+    channels: ['kahyo_gms']
+};
 const successRates = [
     0.95,   //0
     0.9,    //1
