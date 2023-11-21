@@ -99,7 +99,7 @@ function sendMessage(message) {
     let opts = {
         identity: {
             username: 'kahyo_gms',
-            password: `oauth:${accessToken}`
+            password: accessToken
         },
         channels: ['kahyo_gms']
     };
