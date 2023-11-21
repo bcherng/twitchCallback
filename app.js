@@ -74,14 +74,7 @@ const opts = {
   };
   
 const client = new tmi.client(opts);
-client.on('message', (channel, tags, message, self) => {
-	// "Alca: Hello, World!"
-	console.log(`${tags['display-name']}: ${message}`); 
-});
-client.on('connected', (address, port) => {
-    console.log(`Bot connected to ${address}:${port}`);
-    client.say('kahyo_gms', "test");
-  });
+
 client.connect();
 			
 let counter = 0;
@@ -128,6 +121,7 @@ app.post('/starforce', (req, res) => {
         let notification = JSON.parse(req.body);
         
         if (MESSAGE_TYPE_NOTIFICATION === req.headers[MESSAGE_TYPE]) {
+            
             if (Math.floor(Math.random() * 100) + 1 < successRates[ratge.stars]) {
                 ratge.stars += 1;
                 client.say('kahyo_gms', "Sucess! Ratge is now " + ratge.stars + " stars");
