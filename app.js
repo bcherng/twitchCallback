@@ -68,6 +68,7 @@ const decreaseRates = [
 ]
 
 function sendMessage(message) {
+    console.log(message);
     const data = new URLSearchParams({
         'grant_type': 'authorization_code',
         'refresh_token': refreshToken,
@@ -140,9 +141,6 @@ app.get("/starforce", (req, res) => {
     res.end("The star is: " + ratge.stars);
 })
 
-const twitchAccessToken = process.env.appToken; // Replace with your Twitch access token
-
-
 app.post('/starforce', (req, res) => {
     let secret = getSecret();
     let message = getHmacMessage(req);
@@ -155,7 +153,7 @@ app.post('/starforce', (req, res) => {
         let notification = JSON.parse(req.body);
 
         if (MESSAGE_TYPE_NOTIFICATION === req.headers[MESSAGE_TYPE]) {
-            console.log("test");
+            console.log("start");
             if (Math.random() < successRates[ratge.stars]) {
                 ratge.stars += 1;
                 sendMessage("Sucess! Ratge is now " + ratge.stars + " stars");
@@ -166,6 +164,7 @@ app.post('/starforce', (req, res) => {
                 ratge.stars = 12;
                 sendMessage("Destroyed. Ratge is back to 12 stars");
             }
+            console.log("finish");
             res.sendStatus(204);
         }  else if (MESSAGE_TYPE_VERIFICATION === req.headers[MESSAGE_TYPE]) {
             res.set('Content-Type', 'text/plain').status(200).send(notification.challenge);
