@@ -132,8 +132,8 @@ app.get("/", (req, res) => {
     res.end("The counter is: " + counter);
 })
 app.get("/starforce", (req, res) => {
-    res.setHeader('Content-Type', 'text/html');
-    res.end(ratge.stars);
+    res.setHeader('Content-Type', 'text/plain');
+    res.end(ratge.stars.toString());
 })
 
 app.post('/starforce', (req, res) => {
