@@ -74,51 +74,49 @@ function sendMessage(message) {
         'client_id': client_id,
         'client_secret': client_secret
     });
-    
-    console.log(refreshToken);
+
+    console.log(data);
     fetch("https://id.twitch.tv/oauth2/token", {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: data,
-    })
-        .then(response => {
-            console.log(response);
-            return response.json();
-        })
-        .then(data => {
-            console.log('Token refreshed successfully:', data);
-            refreshToken = data.refresh_token;
-            accessToken = data.access_token;
-            
-            // Print the new access token
-            console.log('New Access Token:', accessToken);
+    }).then(response => {
+        console.log(response);
+        return response.json();
+    }).then(data => {
+        console.log('Token refreshed successfully:', data);
+        refreshToken = data.refresh_token;
+        accessToken = data.access_token;
 
-            const opts = {
-                identity: {
-                    username: 'kahyo_gms',
-                    password: `oauth:${accessToken}`
-                },
-                channels: ['kahyo_gms']
-            };
+        // Print the new access token
+        console.log('New Access Token:', accessToken);
 
-            const client = new tmi.Client(opts);
+        const opts = {
+            identity: {
+                username: 'kahyo_gms',
+                password: `oauth:${accessToken}`
+            },
+            channels: ['kahyo_gms']
+        };
 
-            client.on('connected', (address, port) => {
-                // This event is triggered when the client is successfully connected
-                console.log(`Connected to ${address}:${port}`);
-                // Now you can send your message
-                client.say("kahyo_gms", message);
-            });
+        const client = new tmi.Client(opts);
 
-            client.say("kahyo_gms", "test");
+        client.on('connected', (address, port) => {
+            // This event is triggered when the client is successfully connected
+            console.log(`Connected to ${address}:${port}`);
+            // Now you can send your message
             client.say("kahyo_gms", message);
-        })
-        .catch(error => {
-            console.error('Error refreshing token:', error);
-            // Handle the error, e.g., log it or take appropriate action
         });
+
+        client.say("kahyo_gms", "test");
+        client.say("kahyo_gms", message);
+
+    }).catch(error => {
+        console.error('Error refreshing token:', error);
+        // Handle the error, e.g., log it or take appropriate action
+    });
 }
 
 
@@ -177,7 +175,7 @@ app.post('/starforce', (req, res) => {
             }
             console.log("finish");
             res.sendStatus(204);
-        }  else if (MESSAGE_TYPE_VERIFICATION === req.headers[MESSAGE_TYPE]) {
+        } else if (MESSAGE_TYPE_VERIFICATION === req.headers[MESSAGE_TYPE]) {
             res.set('Content-Type', 'text/plain').status(200).send(notification.challenge);
         }
         else if (MESSAGE_TYPE_REVOCATION === req.headers[MESSAGE_TYPE]) {
