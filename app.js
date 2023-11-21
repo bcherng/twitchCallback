@@ -17,7 +17,7 @@ const MESSAGE_TYPE = 'Twitch-Eventsub-Message-Type'.toLowerCase();
 const MESSAGE_TYPE_VERIFICATION = 'webhook_callback_verification';
 const MESSAGE_TYPE_NOTIFICATION = 'notification';
 const MESSAGE_TYPE_REVOCATION = 'revocation';
-
+const redeem_id = "376f2276-448c-4c0a-bb2d-5c4829f4f478";
 // Prepend this string to the HMAC that's created from the message
 const HMAC_PREFIX = 'sha256=';
 
@@ -43,7 +43,9 @@ app.post('/eventsub', (req, res) => {
         let notification = JSON.parse(req.body);
         
         if (MESSAGE_TYPE_NOTIFICATION === req.headers[MESSAGE_TYPE]) {
-            counter += 1;
+            if (notification.subscription.id == redeem_id) {
+                counter += 1;
+            }
 
             console.log(`Event type: ${notification.subscription.type}`);
             console.log(JSON.stringify(notification.event, null, 4));
