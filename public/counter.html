@@ -16,7 +16,7 @@
         .then(response => response.text())
         .then(counterValue => {
           // Update the content of the 'counter' div with the new value
-          document.getElementById('counter').innerText = "The counter is: " + counterValue;
+          document.getElementById('counter').innerText = counterValue;
         })
         .catch(error => {
           console.error('Error fetching counter:', error);
