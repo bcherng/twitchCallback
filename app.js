@@ -97,9 +97,16 @@ async function getToken(message) {
 
 function sendMessage(message) {
     let opts = {
+        connection: {
+            reconnect: true,
+            secure: true
+        },
+        options: {
+            debug: true
+        },
         identity: {
             username: 'kahyo_gms',
-            password: accessToken
+            password: 'oauth:' + accessToken
         },
         channels: ['kahyo_gms']
     };
