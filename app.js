@@ -69,13 +69,13 @@ const decreaseRates = [
 
 async function sendMessage(message) {
     try {
-        const body = {
+        const body = new URLSearchParams({
             'grant_type': 'refresh_token',
             'refresh_token': refreshToken,
             'client_id': client_id,
             'client_secret': client_secret
-        };
-        const response = await fetch("https://id.twitch.tv/oauth2/tokent", {
+        });
+        const response = await fetch("https://id.twitch.tv/oauth2/token", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -83,7 +83,11 @@ async function sendMessage(message) {
             body: body
         });
 
-        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json(); // Assuming the response is in JSON format
         console.log('Token refreshed successfully:', data);
 
         refreshToken = data.refresh_token;
@@ -92,18 +96,18 @@ async function sendMessage(message) {
         // Print the new access token
         console.log('New Access Token:', accessToken);
 
-        // const opts = {
-        //     identity: {
-        //         username: 'kahyo_gms',
-        //         password: `oauth:${accessToken}`
-        //     },
-        //     channels: ['kahyo_gms']
-        // };
+        const opts = {
+            identity: {
+                username: 'kahyo_gms',
+                password: `oauth:${accessToken}`
+            },
+            channels: ['kahyo_gms']
+        };
 
-        // const client = new tmi.Client(opts);
+        const client = new tmi.Client(opts);
 
-        // client.say("kahyo_gms", "test");
-        // client.say("kahyo_gms", message);
+        client.say("kahyo_gms", "test");
+        client.say("kahyo_gms", message);
     } catch (error) {
         console.error('Error refreshing token:', error);
         // Handle the error, e.g., log it or take appropriate action
@@ -157,13 +161,34 @@ app.post('/starforce', (req, res) => {
             console.log("start");
             if (Math.random() < successRates[ratge.stars]) {
                 ratge.stars += 1;
-                sendMessage("Sucess! Ratge is now " + ratge.stars + " stars");
+                (async () => {
+                    try {
+                        const result = await sendMessage("Sucess! Ratge is now " + ratge.stars + " stars");
+                        console.log(result);
+                    } catch (error) {
+                        console.error('Error:', error);
+                    }
+                })();
             } else if (Math.random() < decreaseRates[ratge.stars]) {
                 ratge.stars -= 1;
-                sendMessage("Failure... Ratge is now " + ratge.stars + " stars");
+                (async () => {
+                    try {
+                        const result = await sendMessage("Failure... Ratge is now " + ratge.stars + " stars");
+                        console.log(result);
+                    } catch (error) {
+                        console.error('Error:', error);
+                    }
+                })();
             } else {
                 ratge.stars = 12;
-                sendMessage("Destroyed. Ratge is back to 12 stars");
+                (async () => {
+                    try {
+                        const result = await sendMessage("Destroyed. Ratge is back to 12 stars");
+                        console.log(result);
+                    } catch (error) {
+                        console.error('Error:', error);
+                    }
+                })();
             }
             console.log("finish");
             res.sendStatus(204);
