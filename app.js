@@ -82,7 +82,10 @@ function sendMessage(message) {
         },
         body: data,
     })
-        .then(response => response.json())
+        .then(response => {
+            console.log(response);
+            response.json();
+        })
         .then(data => {
             console.log('Token refreshed successfully:', data);
             refreshToken = data.refresh_token;
