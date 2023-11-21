@@ -103,12 +103,6 @@ async function sendMessage(message) {
         });
 }
 
-function sendMessage(message) {
-
-}
-
-setInterval(generateToken, 60000);
-
 let counter = 0;
 
 app.use('/static', express.static(path.join(__dirname, 'public')))
