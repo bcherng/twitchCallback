@@ -67,8 +67,6 @@ const decreaseRates = [
     0.6,    //24
 ]
 async function sendMessage(message) {
-
-
     try {
         const body = new URLSearchParams({
             'grant_type': 'refresh_token',
@@ -82,6 +80,7 @@ async function sendMessage(message) {
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
             body: body,
+            signal: AbortSignal.timeout( 60000 )
         });
 
         const data = await response.json();
