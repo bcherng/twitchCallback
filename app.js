@@ -66,6 +66,7 @@ const decreaseRates = [
     0.7,    //23
     0.6,    //24
 ]
+
 async function sendMessage(message) {
     try {
         const body = {
@@ -92,25 +93,18 @@ async function sendMessage(message) {
         // Print the new access token
         console.log('New Access Token:', accessToken);
 
-        const opts = {
-            identity: {
-                username: 'kahyo_gms',
-                password: `oauth:${accessToken}`
-            },
-            channels: ['kahyo_gms']
-        };
+        // const opts = {
+        //     identity: {
+        //         username: 'kahyo_gms',
+        //         password: `oauth:${accessToken}`
+        //     },
+        //     channels: ['kahyo_gms']
+        // };
 
-        const client = new tmi.Client(opts);
+        // const client = new tmi.Client(opts);
 
-        client.on('connected', (address, port) => {
-            // This event is triggered when the client is successfully connected
-            console.log(`Connected to ${address}:${port}`);
-            // Now you can send your message
-            client.say("kahyo_gms", message);
-        });
-
-        client.say("kahyo_gms", "test");
-        client.say("kahyo_gms", message);
+        // client.say("kahyo_gms", "test");
+        // client.say("kahyo_gms", message);
     } catch (error) {
         console.error('Error refreshing token:', error);
         // Handle the error, e.g., log it or take appropriate action
