@@ -121,7 +121,7 @@ app.post('/starforce', (req, res) => {
         let notification = JSON.parse(req.body);
         
         if (MESSAGE_TYPE_NOTIFICATION === req.headers[MESSAGE_TYPE]) {
-            
+            counter += 1;
             if (Math.floor(Math.random() * 100) + 1 < successRates[ratge.stars]) {
                 ratge.stars += 1;
                 client.say('kahyo_gms', "Sucess! Ratge is now " + ratge.stars + " stars");
