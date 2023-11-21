@@ -144,7 +144,6 @@ const twitchAccessToken = process.env.appToken; // Replace with your Twitch acce
 
 
 app.post('/starforce', (req, res) => {
-    console.log(req);
     let secret = getSecret();
     let message = getHmacMessage(req);
     let hmac = HMAC_PREFIX + getHmac(secret, message);  // Signature to compare
@@ -167,30 +166,28 @@ app.post('/starforce', (req, res) => {
                 sendMessage("Destroyed. Ratge is back to 12 stars");
             }
             res.sendStatus(204);
-        } else if (MESSAGE_TYPE_VERIFICATION === req.headers[MESSAGE_TYPE]) {
+        }  else if (MESSAGE_TYPE_VERIFICATION === req.headers[MESSAGE_TYPE]) {
             res.set('Content-Type', 'text/plain').status(200).send(notification.challenge);
-        } else if (MESSAGE_TYPE_REVOCATION === req.headers[MESSAGE_TYPE]) {
+        }
+        else if (MESSAGE_TYPE_REVOCATION === req.headers[MESSAGE_TYPE]) {
             res.sendStatus(204);
 
             console.log(`${notification.subscription.type} notifications revoked!`);
             console.log(`reason: ${notification.subscription.status}`);
             console.log(`condition: ${JSON.stringify(notification.subscription.condition, null, 4)}`);
-        } else {
+        }
+        else {
             res.sendStatus(204);
             console.log(`Unknown message type: ${req.headers[MESSAGE_TYPE]}`);
         }
-        console.log(`Event type: ${notification.subscription.type}`);
-        console.log(JSON.stringify(notification.event, null, 4));
-
-        res.sendStatus(204);
-    } else {
+    }
+    else {
         console.log('403');    // Signatures didn't match.
         res.sendStatus(403);
     }
 })
 
 app.post('/eventsub', (req, res) => {
-    console.log(req);
     let secret = getSecret();
     let message = getHmacMessage(req);
     let hmac = HMAC_PREFIX + getHmac(secret, message);  // Signature to compare
