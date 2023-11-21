@@ -81,7 +81,33 @@ let counter = 0;
 
 app.use('/static', express.static(path.join(__dirname, 'public')))
 
+async function refreshToken() {
+    const data = new URLSearchParams({
+        'grant_type': 'refresh_token',
+        'refresh_token': process.env.refreshToken,
+        'client_id': process.env.clientID,
+        'client_secret': process.env.clientSecret
+    });
+    await fetch("https://id.twitch.tv/oauth2/token", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: data,
+    })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Token refreshed successfully:', data);
+            // Update your application with the new access token
+        })
+        .catch(error => {
+            console.error('Error refreshing token:', error);
+            // Handle the error, e.g., log it or take appropriate action
+        });
+}
 
+
+setInterval(refreshToken, 600000);
 // Notification request headers
 const TWITCH_MESSAGE_ID = 'Twitch-Eventsub-Message-Id'.toLowerCase();
 const TWITCH_MESSAGE_TIMESTAMP = 'Twitch-Eventsub-Message-Timestamp'.toLowerCase();
@@ -121,16 +147,20 @@ app.post('/starforce', (req, res) => {
         let notification = JSON.parse(req.body);
         
         if (MESSAGE_TYPE_NOTIFICATION === req.headers[MESSAGE_TYPE]) {
-            if (Math.random() < successRates[ratge.stars]) {
-                ratge.stars += 1;
-                client.say('kahyo_gms', "Sucess! Ratge is now " + ratge.stars + " stars");
-            } else if (Math.random() < decreaseRates[ratge.stars]) {
-                ratge.stars -= 1;
-                client.say('kahyo_gms', "Failure... Ratge is now " + ratge.stars + " stars");
-            } else {
-                ratge.stars = 12;
-                client.say('kahyo_gms', "Destroyed. Ratge is back to 12 stars");
-            }
+           try {
+                if (Math.random() < successRates[ratge.stars]) {
+                    ratge.stars += 1;
+                    client.say('kahyo_gms', "Sucess! Ratge is now " + ratge.stars + " stars");
+                } else if (Math.random() < decreaseRates[ratge.stars]) {
+                    ratge.stars -= 1;
+                    client.say('kahyo_gms', "Failure... Ratge is now " + ratge.stars + " stars");
+                } else {
+                    ratge.stars = 12;
+                    client.say('kahyo_gms', "Destroyed. Ratge is back to 12 stars");
+                }
+           } catch (error) {
+                refreshToken();
+           }
 
             console.log(`Event type: ${notification.subscription.type}`);
             console.log(JSON.stringify(notification.event, null, 4));
