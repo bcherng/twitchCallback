@@ -12,13 +12,7 @@ let accessToken = process.env.token;
 let refreshToken = process.env.refreshToken;
 const client_id = process.env.clientID;
 const client_secret = process.env.clientSecret;
-let opts = {
-        identity: {
-            username: 'kahyogbot',
-            password: `oauth:${accessToken}`
-        },
-        channels: ['kahyo_gms']
-    };
+
 const successRates = [
     0.95,   //0
     0.9,    //1
@@ -101,19 +95,19 @@ const decreaseRates = [
 //         // Handle the error, e.g., log it or take appropriate action
 //     }
 // }
+let opts = {
+    identity: {
+        username: 'kahyogbot',
+        password: `oauth:${accessToken}`
+    },
+    channels: ['kahyo_gms']
+};
 
+const client = new tmi.Client(opts);
+
+client.connect();
 function sendMessage(message) {
-    let opts = {
-        identity: {
-            username: 'kahyogbot',
-            password: `oauth:${accessToken}`
-        },
-        channels: ['kahyo_gms']
-    };
-
-    const client = new tmi.Client(opts);
-
-    client.connect();
+    
     client.say("kahyo_gms", message);
 }
 
