@@ -24,7 +24,7 @@ app.use(express.raw({          // Need raw message body for signature verificati
 
 app.get("*", (req,res) => {
     res.setHeader('Content-Type', 'text/html');
-    res.end(counter);
+    res.end("The counter is: " + counter);
 })
 
 app.post('/eventsub', (req, res) => {
