@@ -43,10 +43,7 @@ app.post('/eventsub', (req, res) => {
         let notification = JSON.parse(req.body);
         
         if (MESSAGE_TYPE_NOTIFICATION === req.headers[MESSAGE_TYPE]) {
-            console.log(notification.subscription);
-            // if (notification.subscription.reward.id == redeem_id) {
-                // counter += 1;
-            // }
+            counter += 1;
 
             console.log(`Event type: ${notification.subscription.type}`);
             console.log(JSON.stringify(notification.event, null, 4));
