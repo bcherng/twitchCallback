@@ -109,6 +109,11 @@ app.get("/", (req,res) => {
     res.setHeader('Content-Type', 'text/html');
     res.end("The counter is: " + counter);
 })
+app.get("/starforce", (req,res) => {
+    res.setHeader('Content-Type', 'text/html');
+    res.end("The counter is: " + ratge.stars);
+})
+
 app.post('/starforce', (req, res) => {
     console.log(req);
     let secret = getSecret();

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stars</title>
+</head>
+<body>
+
+  <div id="stars">Loading...</div>
+
+  <script>
+    function updateStars() {
+      // Fetch the counter value from your server
+      fetch('https://twitch-callback.vercel.app/stars')
+        .then(response => response.text())
+        .then(counterValue => {
+          // Update the content of the 'counter' div with the new value
+          document.getElementById('stars').innerText = counterValue;
+        })
+        .catch(error => {
+          console.error('Error fetching counter:', error);
+        });
+    }
+
+    // Update the counter immediately
+    updateStars();
+
+    // Update the counter every 30 seconds (30000 milliseconds)
+    setInterval(updateStars, 3000);
+  </script>
+
+</body>
+</html>
