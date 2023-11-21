@@ -23,6 +23,7 @@ app.use(express.raw({          // Need raw message body for signature verificati
 }))  
 
 app.get("*", (req,res) => {
+    res.setHeader('Content-Type', 'text/html');
     res.end("test");
 })
 
@@ -96,3 +97,6 @@ function getHmac(secret, message) {
 function verifyMessage(hmac, verifySignature) {
     return crypto.timingSafeEqual(Buffer.from(hmac), Buffer.from(verifySignature));
 }
+
+
+module.exports = app;
