@@ -8,12 +8,9 @@
 <body>
   <img id="playOnceGif" alt="Play Once GIF">
   <script>
-    document.getElementById('playOnceGif').addEventListener('animationiteration', function () {
-        this.style.animationPlayState = 'paused';
-      });
     function updateGif() {
       fetch('/animation')
-        .then(response => response.json())
+        .then(response => response.text())
         .then(data => {
 
           // Update the GIF source
@@ -29,7 +26,9 @@
 
     // Call updateGif initially
     updateGif();
-
+    document.getElementById('playOnceGif').addEventListener('animationiteration', function () {
+        this.style.animationPlayState = 'paused';
+      });
     // Set up a setInterval to call updateGif every 3 seconds
     setInterval(updateGif, 3000);
   </script>
