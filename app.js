@@ -106,7 +106,7 @@ const client = new tmi.Client({
 client.connect().catch();
 function sendMessage(message) {
     
-    client.say("kahyo_gms", message);
+    client.say("kahyo_gms", message).catch();
 }
 
 
