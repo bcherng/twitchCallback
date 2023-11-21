@@ -132,7 +132,8 @@ app.get("/", (req, res) => {
     res.end("The counter is: " + counter);
 })
 app.get("/starforce", (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', `${ratge.stars}.png`));
+    res.setHeader('Content-Type', 'text/html');
+    res.end(ratge.stars);
 })
 
 app.post('/starforce', (req, res) => {

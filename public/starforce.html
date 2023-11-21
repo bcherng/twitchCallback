@@ -7,19 +7,19 @@
 </head>
 <body>
 
-  <div id="stars">Loading...</div>
+  <div>
+    <img id="stars" src="/public/0.png" alt="stars">
+  </div>
 
   <script>
     function updateStars() {
-      // Fetch the counter value from your server
       fetch('https://twitch-callback.vercel.app/starforce')
         .then(response => response.text())
-        .then(counterValue => {
-          // Update the content of the 'counter' div with the new value
-          document.getElementById('stars').innerText = counterValue;
+        .then(stars => {
+          document.getElementById('stars').src = `${stars}.png`;
         })
         .catch(error => {
-          console.error('Error fetching counter:', error);
+          console.error('Error fetching stars:', error);
         });
     }
 
