@@ -6,7 +6,7 @@ const port = 443;
 const path = require('path');
 const tmi = require('tmi.js');
 const ratge = {
-    stars:0
+    stars: 0
 };
 let accessToken;
 let refreshToken;
@@ -67,10 +67,10 @@ const decreaseRates = [
     0.6,    //24
 ]
 
-async function generateToken() {
+async function sendMessage(message) {
     const data = new URLSearchParams({
         'grant_type': 'authorization_code',
-        'refresh_token': 'rlj2gb6m0xnbapr22me89wf72mpkjz6m7pp1l5v2il7igm8mtx',
+        'refresh_token': refreshToken,
         'client_id': client_id,
         'client_secret': client_secret
     });
@@ -86,6 +86,16 @@ async function generateToken() {
             console.log('Token refreshed successfully:', data);
             refreshToken = data.refresh_token;
             accessToken = data.access_token;
+            const opts = {
+                identity: {
+                    username: 'kahyo_gms',
+                    password: `oauth:${accessToken}`
+                },
+                channels: ['kahyo_gms']
+            };
+        
+            const client = new tmi.Client(opts);
+            client.say("kahyo_gms", message);
         })
         .catch(error => {
             console.error('Error refreshing token:', error);
@@ -93,22 +103,12 @@ async function generateToken() {
         });
 }
 
+function sendMessage(message) {
+   
+}
+
 setInterval(generateToken, 60000);
 
-const opts = {
-    identity: {
-      username: 'yogBot',
-      password: refreshToken
-    },
-    channels: [
-      'kahyo_gms'
-    ]
-  };
-  
-const client = new tmi.client(opts);
-
-client.connect();
-			
 let counter = 0;
 
 app.use('/static', express.static(path.join(__dirname, 'public')))
@@ -128,13 +128,13 @@ const HMAC_PREFIX = 'sha256=';
 
 app.use(express.raw({          // Need raw message body for signature verification
     type: 'application/json'
-}))  
+}))
 
-app.get("/", (req,res) => {
+app.get("/", (req, res) => {
     res.setHeader('Content-Type', 'text/html');
     res.end("The counter is: " + counter);
 })
-app.get("/starforce", (req,res) => {
+app.get("/starforce", (req, res) => {
     res.setHeader('Content-Type', 'text/html');
     res.end("The star is: " + ratge.stars);
 })
@@ -153,43 +153,40 @@ app.post('/starforce', (req, res) => {
 
         // Get JSON object from body, so you can process the message.
         let notification = JSON.parse(req.body);
-        
+
         if (MESSAGE_TYPE_NOTIFICATION === req.headers[MESSAGE_TYPE]) {
-           try {
-                if (Math.random() < successRates[ratge.stars]) {
-                    ratge.stars += 1;
-                    sendMessage("Sucess! Ratge is now " + ratge.stars + " stars");
-                } else if (Math.random() < decreaseRates[ratge.stars]) {
-                    ratge.stars -= 1;
-                    sendMessage("Failure... Ratge is now " + ratge.stars + " stars");
-                } else {
-                    ratge.stars = 12;
-                    sendMessage("Destroyed. Ratge is back to 12 stars");
-                }
-           } catch (error) {
-                generateToken();
-           }
+            generateToken.then()
+            if (Math.random() < successRates[ratge.stars]) {
+                ratge.stars += 1;
+                sendMessage("Sucess! Ratge is now " + ratge.stars + " stars");
+            } else if (Math.random() < decreaseRates[ratge.stars]) {
+                ratge.stars -= 1;
+                sendMessage("Failure... Ratge is now " + ratge.stars + " stars");
+            } else {
+                ratge.stars = 12;
+                sendMessage("Destroyed. Ratge is back to 12 stars");
+            }
+        }
+        console.log(`Event type: ${notification.subscription.type}`);
+        console.log(JSON.stringify(notification.event, null, 4));
 
-            console.log(`Event type: ${notification.subscription.type}`);
-            console.log(JSON.stringify(notification.event, null, 4));
-            
-            res.sendStatus(204);
-        }
-        else if (MESSAGE_TYPE_VERIFICATION === req.headers[MESSAGE_TYPE]) {
-            res.set('Content-Type', 'text/plain').status(200).send(notification.challenge);
-        }
-        else if (MESSAGE_TYPE_REVOCATION === req.headers[MESSAGE_TYPE]) {
-            res.sendStatus(204);
-
-            console.log(`${notification.subscription.type} notifications revoked!`);
-            console.log(`reason: ${notification.subscription.status}`);
-            console.log(`condition: ${JSON.stringify(notification.subscription.condition, null, 4)}`);
-        }
-        else {
-            res.sendStatus(204);
-            console.log(`Unknown message type: ${req.headers[MESSAGE_TYPE]}`);
-        }
+        res.sendStatus(204);
     }
+    else if (MESSAGE_TYPE_VERIFICATION === req.headers[MESSAGE_TYPE]) {
+        res.set('Content-Type', 'text/plain').status(200).send(notification.challenge);
+    }
+    else if (MESSAGE_TYPE_REVOCATION === req.headers[MESSAGE_TYPE]) {
+        res.sendStatus(204);
+
+        console.log(`${notification.subscription.type} notifications revoked!`);
+        console.log(`reason: ${notification.subscription.status}`);
+        console.log(`condition: ${JSON.stringify(notification.subscription.condition, null, 4)}`);
+    }
+    else {
+        res.sendStatus(204);
+        console.log(`Unknown message type: ${req.headers[MESSAGE_TYPE]}`);
+    }
+}
     else {
         console.log('403');    // Signatures didn't match.
         res.sendStatus(403);
@@ -207,13 +204,13 @@ app.post('/eventsub', (req, res) => {
 
         // Get JSON object from body, so you can process the message.
         let notification = JSON.parse(req.body);
-        
+
         if (MESSAGE_TYPE_NOTIFICATION === req.headers[MESSAGE_TYPE]) {
             counter += 1;
 
             console.log(`Event type: ${notification.subscription.type}`);
             console.log(JSON.stringify(notification.event, null, 4));
-            
+
             res.sendStatus(204);
         }
         else if (MESSAGE_TYPE_VERIFICATION === req.headers[MESSAGE_TYPE]) {
@@ -236,9 +233,9 @@ app.post('/eventsub', (req, res) => {
         res.sendStatus(403);
     }
 })
-  
+
 app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`);
+    console.log(`Example app listening at http://localhost:${port}`);
 })
 
 
@@ -250,16 +247,16 @@ function getSecret() {
 
 // Build the message used to get the HMAC.
 function getHmacMessage(request) {
-    return (request.headers[TWITCH_MESSAGE_ID] + 
-        request.headers[TWITCH_MESSAGE_TIMESTAMP] + 
+    return (request.headers[TWITCH_MESSAGE_ID] +
+        request.headers[TWITCH_MESSAGE_TIMESTAMP] +
         request.body);
 }
 
 // Get the HMAC.
 function getHmac(secret, message) {
     return crypto.createHmac('sha256', secret)
-    .update(message)
-    .digest('hex');
+        .update(message)
+        .digest('hex');
 }
 
 // Verify whether our hash matches the hash that Twitch passed in the header.
