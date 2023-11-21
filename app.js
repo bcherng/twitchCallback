@@ -75,13 +75,12 @@ async function sendMessage(message) {
             'client_id': client_id,
             'client_secret': client_secret
         };
-        const response = await fetch("https://id.twitch.tv/oauth2/token", {
+        const response = await fetch("https://id.twitch.tv/oauth2/tokent", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
-            body: body,
-            signal: AbortSignal.timeout( 60000 )
+            body: body
         });
 
         const data = await response.json();
