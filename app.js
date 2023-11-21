@@ -83,7 +83,7 @@ function sendMessage(message) {
         },
         body: data,
     }).then(response => {
-        console.log(response);
+        console.log(response.json());
         return response.json();
     }).then(data => {
         console.log('Token refreshed successfully:', data);
