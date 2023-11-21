@@ -1,5 +1,6 @@
 const crypto = require('crypto')
 const express = require('express');
+const { access } = require('fs');
 const app = express();
 const port = 443;
 const path = require('path');
@@ -7,7 +8,10 @@ const tmi = require('tmi.js');
 const ratge = {
     stars:0
 };
-
+let accessToken;
+let refreshToken;
+const client_id = process.env.clientID;
+const client_secret = process.env.clientSecret;
 const successRates = [
     0.95,   //0
     0.9,    //1
@@ -63,10 +67,38 @@ const decreaseRates = [
     0.6,    //24
 ]
 
+async function generateToken() {
+    const data = new URLSearchParams({
+        'grant_type': 'authorization_code',
+        'refresh_token': 'rlj2gb6m0xnbapr22me89wf72mpkjz6m7pp1l5v2il7igm8mtx',
+        'client_id': client_id,
+        'client_secret': client_secret
+    });
+    await fetch("https://id.twitch.tv/oauth2/token", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: data,
+    })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Token refreshed successfully:', data);
+            refreshToken = data.refresh_token;
+            accessToken = data.access_token;
+        })
+        .catch(error => {
+            console.error('Error refreshing token:', error);
+            // Handle the error, e.g., log it or take appropriate action
+        });
+}
+
+setInterval(generateToken, 60000);
+
 const opts = {
     identity: {
       username: 'yogBot',
-      password: process.env.token
+      password: refreshToken
     },
     channels: [
       'kahyo_gms'
@@ -81,35 +113,6 @@ let counter = 0;
 
 app.use('/static', express.static(path.join(__dirname, 'public')))
 
-async function refreshToken() {
-    const data = new URLSearchParams({
-        'grant_type': 'refresh_token',
-        'refresh_token': process.env.refreshToken,
-        'client_id': process.env.clientID,
-        'client_secret': process.env.clientSecret
-    });
-    await fetch("https://id.twitch.tv/oauth2/token", {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: data,
-    })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Token refreshed successfully:', data);
-            process.env.refreshToken = data.refresh_token;
-            process.env.token = data.access_token;
-            // Update your application with the new access token
-        })
-        .catch(error => {
-            console.error('Error refreshing token:', error);
-            // Handle the error, e.g., log it or take appropriate action
-        });
-}
-
-refreshToken();
-setInterval(refreshToken, 600000);
 // Notification request headers
 const TWITCH_MESSAGE_ID = 'Twitch-Eventsub-Message-Id'.toLowerCase();
 const TWITCH_MESSAGE_TIMESTAMP = 'Twitch-Eventsub-Message-Timestamp'.toLowerCase();
@@ -136,36 +139,8 @@ app.get("/starforce", (req,res) => {
     res.end("The star is: " + ratge.stars);
 })
 
-const twitchChannel = 'kahyo_gms';
 const twitchAccessToken = process.env.appToken; // Replace with your Twitch access token
 
-async function sendMessage(message) {
-    const url = `https://api.twitch.tv/helix/channel_points/custom_rewards/redemptions?broadcaster_id=${twitchChannel}`;
-    const body = JSON.stringify({
-        content_type: 'application/json',
-        message: message,
-    });
-
-    try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${twitchAccessToken}`,
-            },
-            body: body,
-        });
-
-        if (!response.ok) {
-            throw new Error(`Failed to send message. Status: ${response.status}`);
-        }
-
-        console.log('Message sent successfully');
-    } catch (error) {
-        console.error('Error sending message:', error.message);
-        // Handle the error, e.g., log it or take appropriate action
-    }
-}
 
 app.post('/starforce', (req, res) => {
     console.log(req);
@@ -192,6 +167,7 @@ app.post('/starforce', (req, res) => {
                     sendMessage("Destroyed. Ratge is back to 12 stars");
                 }
            } catch (error) {
+                generateToken();
            }
 
             console.log(`Event type: ${notification.subscription.type}`);
