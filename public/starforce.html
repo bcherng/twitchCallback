@@ -16,7 +16,7 @@
       fetch('https://twitch-callback.vercel.app/starforce')
         .then(response => response.text())
         .then(stars => {
-          document.getElementById('stars').src = `${stars}.png`;
+          document.getElementById('stars').src = `/${stars}.png`;
         })
         .catch(error => {
           console.error('Error fetching stars:', error);
