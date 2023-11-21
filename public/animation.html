@@ -18,17 +18,7 @@
 
         // Reset animation play state to play the new GIF
         document.getElementById('playOnceGif').style.animationPlayState = 'running';
-
-        // Add an event listener for the animationend event
-        function onAnimationEnd() {
-          // Pause the animation after the entire GIF has played
-          this.style.animationPlayState = 'paused';
-          // Remove the event listener after the animation ends
-        }
-
-        // Add the event listener
-        document.getElementById('playOnceGif').addEventListener('animationend', onAnimationEnd);
-
+        document.getElementById('playOnceGif').style.animationIterationCount = 1;
       })
       .catch(error => {
         console.error('Error fetching /sf:', error);
