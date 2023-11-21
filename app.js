@@ -66,7 +66,7 @@ const decreaseRates = [
 const opts = {
     identity: {
       username: 'yogBot',
-      password: '23e27e6eip8oq7mk8yxcftc6ur38in'
+      password: 'oauth:23e27e6eip8oq7mk8yxcftc6ur38in'
     },
     channels: [
       'kahyo_gms'
@@ -74,7 +74,11 @@ const opts = {
   };
   
 const client = new tmi.client(opts);
-
+client.on('message', (channel, tags, message, self) => {
+	// "Alca: Hello, World!"
+	console.log(`${tags['display-name']}: ${message}`);
+});
+			
 let counter = 0;
 
 app.use('/static', express.static(path.join(__dirname, 'public')))
