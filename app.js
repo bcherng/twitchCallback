@@ -136,6 +136,37 @@ app.get("/starforce", (req,res) => {
     res.end("The star is: " + ratge.stars);
 })
 
+const twitchChannel = 'kahyo_gms';
+const twitchAccessToken = process.env.appToken; // Replace with your Twitch access token
+
+async function sendMessage(message) {
+    const url = `https://api.twitch.tv/helix/channel_points/custom_rewards/redemptions?broadcaster_id=${twitchChannel}`;
+    const body = JSON.stringify({
+        content_type: 'application/json',
+        message: message,
+    });
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${twitchAccessToken}`,
+            },
+            body: body,
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to send message. Status: ${response.status}`);
+        }
+
+        console.log('Message sent successfully');
+    } catch (error) {
+        console.error('Error sending message:', error.message);
+        // Handle the error, e.g., log it or take appropriate action
+    }
+}
+
 app.post('/starforce', (req, res) => {
     console.log(req);
     let secret = getSecret();
@@ -152,13 +183,13 @@ app.post('/starforce', (req, res) => {
            try {
                 if (Math.random() < successRates[ratge.stars]) {
                     ratge.stars += 1;
-                    client.say('kahyo_gms', "Sucess! Ratge is now " + ratge.stars + " stars");
+                    sendMessage("Sucess! Ratge is now " + ratge.stars + " stars");
                 } else if (Math.random() < decreaseRates[ratge.stars]) {
                     ratge.stars -= 1;
-                    client.say('kahyo_gms', "Failure... Ratge is now " + ratge.stars + " stars");
+                    sendMessage("Failure... Ratge is now " + ratge.stars + " stars");
                 } else {
                     ratge.stars = 12;
-                    client.say('kahyo_gms', "Destroyed. Ratge is back to 12 stars");
+                    sendMessage("Destroyed. Ratge is back to 12 stars");
                 }
            } catch (error) {
            }
