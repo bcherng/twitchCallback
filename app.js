@@ -97,16 +97,9 @@ async function getToken(message) {
 
 function sendMessage(message) {
     let opts = {
-        connection: {
-            reconnect: true,
-            secure: true
-        },
-        options: {
-            debug: true
-        },
         identity: {
             username: 'kahyo_gms',
-            password: 'oauth:' + accessToken
+            password: `oauth:${accessToken}`
         },
         channels: ['kahyo_gms']
     };
@@ -114,7 +107,6 @@ function sendMessage(message) {
     const client = new tmi.Client(opts);
 
     client.connect();
-    client.say("kahyo_gms", "test");
     client.say("kahyo_gms", message);
 }
 
