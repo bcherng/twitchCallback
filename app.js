@@ -69,7 +69,7 @@ const decreaseRates = [
 async function sendMessage(message) {
     console.log(message);
     const data = new URLSearchParams({
-        'grant_type': 'authorization_code',
+        'grant_type': 'refresh_token',
         'refresh_token': refreshToken,
         'client_id': client_id,
         'client_secret': client_secret
