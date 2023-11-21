@@ -78,6 +78,9 @@ client.on('message', (channel, tags, message, self) => {
 	// "Alca: Hello, World!"
 	console.log(`${tags['display-name']}: ${message}`); 
 });
+client.on('connected', (address, port) => {
+    console.log(`Bot connected to ${address}:${port}`);
+  });
 client.connect();
 			
 let counter = 0;
