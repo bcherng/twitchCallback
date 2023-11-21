@@ -66,7 +66,7 @@ const decreaseRates = [
 const opts = {
     identity: {
       username: 'yogBot',
-      password: 'oauth:23e27e6eip8oq7mk8yxcftc6ur38in'
+      password: '23e27e6eip8oq7mk8yxcftc6ur38in'
     },
     channels: [
       'kahyo_gms'
