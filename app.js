@@ -66,7 +66,7 @@ const decreaseRates = [
 const opts = {
     identity: {
       username: 'yogBot',
-      password: '23e27e6eip8oq7mk8yxcftc6ur38in'
+      password: process.env.token
     },
     channels: [
       'kahyo_gms'
@@ -98,7 +98,6 @@ const MESSAGE_TYPE = 'Twitch-Eventsub-Message-Type'.toLowerCase();
 const MESSAGE_TYPE_VERIFICATION = 'webhook_callback_verification';
 const MESSAGE_TYPE_NOTIFICATION = 'notification';
 const MESSAGE_TYPE_REVOCATION = 'revocation';
-const redeem_id = "376f2276-448c-4c0a-bb2d-5c4829f4f478";
 // Prepend this string to the HMAC that's created from the message
 const HMAC_PREFIX = 'sha256=';
 
