@@ -93,7 +93,7 @@ async function sendMessage(message) {
                 },
                 channels: ['kahyo_gms']
             };
-        
+
             const client = new tmi.Client(opts);
             client.say("kahyo_gms", message);
         })
@@ -104,7 +104,7 @@ async function sendMessage(message) {
 }
 
 function sendMessage(message) {
-   
+
 }
 
 setInterval(generateToken, 60000);
@@ -166,28 +166,23 @@ app.post('/starforce', (req, res) => {
                 ratge.stars = 12;
                 sendMessage("Destroyed. Ratge is back to 12 stars");
             }
+        } else if (MESSAGE_TYPE_VERIFICATION === req.headers[MESSAGE_TYPE]) {
+            res.set('Content-Type', 'text/plain').status(200).send(notification.challenge);
+        } else if (MESSAGE_TYPE_REVOCATION === req.headers[MESSAGE_TYPE]) {
+            res.sendStatus(204);
+
+            console.log(`${notification.subscription.type} notifications revoked!`);
+            console.log(`reason: ${notification.subscription.status}`);
+            console.log(`condition: ${JSON.stringify(notification.subscription.condition, null, 4)}`);
+        } else {
+            res.sendStatus(204);
+            console.log(`Unknown message type: ${req.headers[MESSAGE_TYPE]}`);
         }
         console.log(`Event type: ${notification.subscription.type}`);
         console.log(JSON.stringify(notification.event, null, 4));
 
         res.sendStatus(204);
-    }
-    else if (MESSAGE_TYPE_VERIFICATION === req.headers[MESSAGE_TYPE]) {
-        res.set('Content-Type', 'text/plain').status(200).send(notification.challenge);
-    }
-    else if (MESSAGE_TYPE_REVOCATION === req.headers[MESSAGE_TYPE]) {
-        res.sendStatus(204);
-
-        console.log(`${notification.subscription.type} notifications revoked!`);
-        console.log(`reason: ${notification.subscription.status}`);
-        console.log(`condition: ${JSON.stringify(notification.subscription.condition, null, 4)}`);
-    }
-    else {
-        res.sendStatus(204);
-        console.log(`Unknown message type: ${req.headers[MESSAGE_TYPE]}`);
-    }
-}
-    else {
+    } else {
         console.log('403');    // Signatures didn't match.
         res.sendStatus(403);
     }
