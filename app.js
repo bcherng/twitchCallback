@@ -75,6 +75,7 @@ function sendMessage(message) {
         'client_secret': client_secret
     });
     
+    console.log(refreshToken);
     fetch("https://id.twitch.tv/oauth2/token", {
         method: 'POST',
         headers: {
