@@ -161,7 +161,6 @@ app.post('/starforce', (req, res) => {
                     client.say('kahyo_gms', "Destroyed. Ratge is back to 12 stars");
                 }
            } catch (error) {
-                refreshToken();
            }
 
             console.log(`Event type: ${notification.subscription.type}`);
