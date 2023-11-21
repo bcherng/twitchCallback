@@ -155,6 +155,7 @@ app.post('/starforce', (req, res) => {
         let notification = JSON.parse(req.body);
 
         if (MESSAGE_TYPE_NOTIFICATION === req.headers[MESSAGE_TYPE]) {
+            console.log("test");
             if (Math.random() < successRates[ratge.stars]) {
                 ratge.stars += 1;
                 sendMessage("Sucess! Ratge is now " + ratge.stars + " stars");
