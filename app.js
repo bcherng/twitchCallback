@@ -67,7 +67,7 @@ const decreaseRates = [
     0.6,    //24
 ]
 
-async function sendMessage(message) {
+async function getToken(message) {
     try {
         const body = new URLSearchParams({
             'grant_type': 'refresh_token',
@@ -88,32 +88,27 @@ async function sendMessage(message) {
         }
 
         const data = await response.json(); // Assuming the response is in JSON format
-        console.log('Token refreshed successfully:', data);
-
-        refreshToken = data.refresh_token;
-        accessToken = data.access_token;
-
-        // Print the new access token
-        console.log('New Access Token:', accessToken);
-
-        const opts = {
-            identity: {
-                username: 'kahyo_gms',
-                password: `oauth:${accessToken}`
-            },
-            channels: ['kahyo_gms']
-        };
-
-        const client = new tmi.Client(opts);
-
-        client.say("kahyo_gms", "test");
-        client.say("kahyo_gms", message);
+        return data;
     } catch (error) {
         console.error('Error refreshing token:', error);
         // Handle the error, e.g., log it or take appropriate action
     }
 }
 
+function sendMessage(message) {
+    let opts = {
+        identity: {
+            username: 'kahyo_gms',
+            password: `oauth:${accessToken}`
+        },
+        channels: ['kahyo_gms']
+    };
+
+    const client = new tmi.Client(opts);
+
+    client.say("kahyo_gms", "test");
+    client.say("kahyo_gms", message);
+}
 
 
 let counter = 0;
@@ -156,39 +151,27 @@ app.post('/starforce', (req, res) => {
 
         // Get JSON object from body, so you can process the message.
         let notification = JSON.parse(req.body);
-
+        (async () => {
+            try {
+                const result = await getToken();
+                console.log(result);
+                refreshToken = data.refresh_token;
+                accessToken = data.access_token;
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        })();
         if (MESSAGE_TYPE_NOTIFICATION === req.headers[MESSAGE_TYPE]) {
             console.log("start");
             if (Math.random() < successRates[ratge.stars]) {
                 ratge.stars += 1;
-                (async () => {
-                    try {
-                        const result = await sendMessage("Sucess! Ratge is now " + ratge.stars + " stars");
-                        console.log(result);
-                    } catch (error) {
-                        console.error('Error:', error);
-                    }
-                })();
+                sendMessage("Sucess! Ratge is now " + ratge.stars + " stars");
             } else if (Math.random() < decreaseRates[ratge.stars]) {
                 ratge.stars -= 1;
-                (async () => {
-                    try {
-                        const result = await sendMessage("Failure... Ratge is now " + ratge.stars + " stars");
-                        console.log(result);
-                    } catch (error) {
-                        console.error('Error:', error);
-                    }
-                })();
+                sendMessage("Failed... Ratge is now " + ratge.stars + " stars");
             } else {
                 ratge.stars = 12;
-                (async () => {
-                    try {
-                        const result = await sendMessage("Destroyed. Ratge is back to 12 stars");
-                        console.log(result);
-                    } catch (error) {
-                        console.error('Error:', error);
-                    }
-                })();
+               sendMessage("Destroyed. Ratge is back to 12 stars");
             }
             console.log("finish");
             res.sendStatus(204);
