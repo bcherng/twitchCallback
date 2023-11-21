@@ -2,8 +2,11 @@ const crypto = require('crypto')
 const express = require('express');
 const app = express();
 const port = 443;
+const path = require('path')
+app.use('/static', express.static(path.join(__dirname, 'public')))
+
 let counter = 0;
-    
+
 // Notification request headers
 const TWITCH_MESSAGE_ID = 'Twitch-Eventsub-Message-Id'.toLowerCase();
 const TWITCH_MESSAGE_TIMESTAMP = 'Twitch-Eventsub-Message-Timestamp'.toLowerCase();
@@ -22,7 +25,7 @@ app.use(express.raw({          // Need raw message body for signature verificati
     type: 'application/json'
 }))  
 
-app.get("*", (req,res) => {
+app.get("/", (req,res) => {
     res.setHeader('Content-Type', 'text/html');
     res.end("The counter is: " + counter);
 })

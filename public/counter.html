@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Counter</title>
+</head>
+<body>
+
+  <div id="counter">Loading...</div>
+
+  <script>
+    function updateCounter() {
+      // Fetch the counter value from your server
+      fetch('/https://twitch-callback-bbrfduecl-brians-projects-ee4f5533.vercel.app/')
+        .then(response => response.text())
+        .then(counterValue => {
+          // Update the content of the 'counter' div with the new value
+          document.getElementById('counter').innerText = "The counter is: " + counterValue;
+        })
+        .catch(error => {
+          console.error('Error fetching counter:', error);
+        });
+    }
+
+    // Update the counter immediately
+    updateCounter();
+
+    // Update the counter every 30 seconds (30000 milliseconds)
+    setInterval(updateCounter, 30000);
+  </script>
+
+</body>
+</html>
