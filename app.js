@@ -98,7 +98,7 @@ async function getToken(message) {
 function sendMessage(message) {
     let opts = {
         identity: {
-            username: 'kahyo_gms',
+            username: 'test',
             password: `oauth:${accessToken}`
         },
         channels: ['kahyo_gms']
