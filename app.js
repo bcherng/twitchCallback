@@ -68,12 +68,12 @@ const decreaseRates = [
 ]
 async function sendMessage(message) {
     try {
-        const body = new URLSearchParams({
+        const body = {
             'grant_type': 'refresh_token',
             'refresh_token': refreshToken,
             'client_id': client_id,
             'client_secret': client_secret
-        });
+        };
         const response = await fetch("https://id.twitch.tv/oauth2/token", {
             method: 'POST',
             headers: {
