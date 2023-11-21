@@ -4,7 +4,8 @@ const app = express();
 const port = 443;
 const path = require('path');
 const ratge = {
-    stars: 0
+    stars: 0,
+    lastResult: "none"
 };
 let accessToken = process.env.token;
 let refreshToken = process.env.refreshToken;
@@ -131,6 +132,12 @@ app.get("/", (req, res) => {
     res.setHeader('Content-Type', 'text/html');
     res.end("The counter is: " + counter);
 })
+
+app.get("/animation", (req, res) => {
+    res.setHeader('Content-Type', 'text/plain');
+    res.end(ratge.lastResult);
+})
+
 app.get("/starforce", (req, res) => {
     res.setHeader('Content-Type', 'text/plain');
     res.end(ratge.stars.toString());
@@ -147,14 +154,17 @@ app.post('/starforce', (req, res) => {
             console.log("start");
             if (Math.random() < successRates[ratge.stars]) {
                 ratge.stars += 1;
+                ratge.lastResult = "success";
                 connection.send('PRIVMSG #kahyo_gms :Sucess -> Ratge is now ' + ratge.stars + ' stars');
             } else if (Math.random() < decreaseRates[ratge.stars]) {
                 ratge.stars -= 1;
+                ratge.lastResult = "failure";
                 connection.send('PRIVMSG #kahyo_gms :Failed(Drop) -> Ratge is now ' + ratge.stars + ' stars');
             } else if (decreaseRates[ratge.stars] == 0) {
                 connection.send('PRIVMSG #kahyo_gms :Failed(Maintain) Ratge is ' + ratge.stars + " stars");
             } else {
                 ratge.stars = 12; 
+                ratge.lastResult = "destroy";
                 connection.send('PRIVMSG #kahyo_gms :Destroyed -> Ratge is back to 12 stars');
             }
             console.log("finish");
