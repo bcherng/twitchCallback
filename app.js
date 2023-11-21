@@ -113,6 +113,7 @@ function sendMessage(message) {
 
     const client = new tmi.Client(opts);
 
+    client.connect();
     client.say("kahyo_gms", "test");
     client.say("kahyo_gms", message);
 }
