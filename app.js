@@ -66,7 +66,6 @@ const decreaseRates = [
     0.7,    //23
     0.6,    //24
 ]
-
 function sendMessage(message) {
     console.log(message);
     const data = new URLSearchParams({
@@ -75,6 +74,7 @@ function sendMessage(message) {
         'client_id': client_id,
         'client_secret': client_secret
     });
+
     fetch("https://id.twitch.tv/oauth2/token", {
         method: 'POST',
         headers: {
@@ -90,6 +90,10 @@ function sendMessage(message) {
             console.log('Token refreshed successfully:', data);
             refreshToken = data.refresh_token;
             accessToken = data.access_token;
+            
+            // Print the new access token
+            console.log('New Access Token:', accessToken);
+
             const opts = {
                 identity: {
                     username: 'kahyo_gms',
@@ -99,12 +103,14 @@ function sendMessage(message) {
             };
 
             const client = new tmi.Client(opts);
+
             client.on('connected', (address, port) => {
                 // This event is triggered when the client is successfully connected
                 console.log(`Connected to ${address}:${port}`);
                 // Now you can send your message
                 client.say("kahyo_gms", message);
             });
+
             client.say("kahyo_gms", "test");
             client.say("kahyo_gms", message);
         })
@@ -113,6 +119,7 @@ function sendMessage(message) {
             // Handle the error, e.g., log it or take appropriate action
         });
 }
+
 
 let counter = 0;
 
