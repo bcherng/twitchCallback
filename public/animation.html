@@ -9,27 +9,25 @@
   <img id="playOnceGif" alt="">
   <script>
     function updateGif() {
-    fetch('/animation')
-      .then(response => response.text())
-      .then(data => {
+      fetch('/animation')
+        .then(response => response.text())
+        .then(data => {
+          // Update the GIF source
+          document.getElementById('playOnceGif').src = data;
 
-        // Update the GIF source
-        document.getElementById('playOnceGif').src = `/${data}.gif`;
+          // Reset animation play state to play the new GIF
+          document.getElementById('playOnceGif').style.animationPlayState = 'running';
+        })
+        .catch(error => {
+          console.error('Error fetching /animation:', error);
+        });
+    }
 
-        // Reset animation play state to play the new GIF
-        document.getElementById('playOnceGif').style.animationPlayState = 'running';
-        document.getElementById('playOnceGif').style.animationIterationCount = 1;
-      })
-      .catch(error => {
-        console.error('Error fetching /sf:', error);
-      });
-  }
+    // Call updateGif initially
+    updateGif();
 
-  // Call updateGif initially
-  updateGif();
-
-  // Set up a setInterval to call updateGif every 3 seconds
-  setInterval(updateGif, 3000);
+    // Set up a setInterval to call updateGif every 3 seconds
+    setInterval(updateGif, 3000);
   </script>
 </body>
 </html>

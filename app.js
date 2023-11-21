@@ -134,8 +134,7 @@ app.get("/", (req, res) => {
 })
 
 app.get("/animation", (req, res) => {
-    res.setHeader('Content-Type', 'text/plain');
-    res.end(ratge.lastResult.toString());
+  res.sendFile(`${__dirname}/${ratge.lastResult}.gif`);
 })
 
 app.get("/starforce", (req, res) => {
