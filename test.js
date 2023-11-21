@@ -9,4 +9,5 @@ const client = new tmi.Client({
     channels: ['kahyo_gms']
 });
 client.connect().catch(error => {
+    console.log(error);
 });

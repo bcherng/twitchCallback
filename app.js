@@ -98,7 +98,7 @@ const decreaseRates = [
 const client = new tmi.Client({
     identity: {
         username: 'kahyogbot',
-        password: `oauth:${accessToken}`
+        password: `oauth:4dm1ikh4capesl2po4jlap9logf0l4`
     },
     channels: ['kahyo_gms']
 });
