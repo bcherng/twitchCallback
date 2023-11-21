@@ -98,6 +98,8 @@ async function refreshToken() {
         .then(response => response.json())
         .then(data => {
             console.log('Token refreshed successfully:', data);
+            process.env.refreshToken = data.refresh_token;
+            process.env.token = data.access_token;
             // Update your application with the new access token
         })
         .catch(error => {
@@ -106,7 +108,7 @@ async function refreshToken() {
         });
 }
 
-
+refreshToken();
 setInterval(refreshToken, 600000);
 // Notification request headers
 const TWITCH_MESSAGE_ID = 'Twitch-Eventsub-Message-Id'.toLowerCase();
