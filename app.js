@@ -166,6 +166,7 @@ app.post('/starforce', (req, res) => {
                 ratge.stars = 12;
                 sendMessage("Destroyed. Ratge is back to 12 stars");
             }
+            res.sendStatus(204);
         } else if (MESSAGE_TYPE_VERIFICATION === req.headers[MESSAGE_TYPE]) {
             res.set('Content-Type', 'text/plain').status(200).send(notification.challenge);
         } else if (MESSAGE_TYPE_REVOCATION === req.headers[MESSAGE_TYPE]) {
