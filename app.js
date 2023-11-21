@@ -66,7 +66,7 @@ const decreaseRates = [
     0.7,    //23
     0.6,    //24
 ]
-function sendMessage(message) {
+async function sendMessage(message) {
     console.log(message);
     const data = new URLSearchParams({
         'grant_type': 'authorization_code',
@@ -74,8 +74,8 @@ function sendMessage(message) {
         'client_id': client_id,
         'client_secret': client_secret
     });
-
-    fetch("https://id.twitch.tv/oauth2/token", {
+    
+    await fetch("https://id.twitch.tv/oauth2/token", {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
