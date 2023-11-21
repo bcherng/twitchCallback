@@ -8,13 +8,13 @@ const tmi = require('tmi.js');
 const ratge = {
     stars: 0
 };
-let accessToken;
+let accessToken = process.env.token;
 let refreshToken = process.env.refreshToken;
 const client_id = process.env.clientID;
 const client_secret = process.env.clientSecret;
 let opts = {
         identity: {
-            username: 'test',
+            username: 'kahyogbot',
             password: `oauth:${accessToken}`
         },
         channels: ['kahyo_gms']
@@ -74,38 +74,38 @@ const decreaseRates = [
     0.6,    //24
 ]
 
-async function getToken() {
-    try {
-        const body = new URLSearchParams({
-            'grant_type': 'refresh_token',
-            'refresh_token': refreshToken,
-            'client_id': client_id,
-            'client_secret': client_secret
-        });
-        const response = await fetch("https://id.twitch.tv/oauth2/token", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: body
-        });
+// async function getToken() {
+//     try {
+//         const body = new URLSearchParams({
+//             'grant_type': 'refresh_token',
+//             'refresh_token': refreshToken,
+//             'client_id': client_id,
+//             'client_secret': client_secret
+//         });
+//         const response = await fetch("https://id.twitch.tv/oauth2/token", {
+//             method: 'POST',
+//             headers: {
+//                 'Content-Type': 'application/x-www-form-urlencoded',
+//             },
+//             body: body
+//         });
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
+//         if (!response.ok) {
+//             throw new Error(`HTTP error! Status: ${response.status}`);
+//         }
 
-        const data = await response.json(); // Assuming the response is in JSON format
-        return data;
-    } catch (error) {
-        console.error('Error refreshing token:', error);
-        // Handle the error, e.g., log it or take appropriate action
-    }
-}
+//         const data = await response.json(); // Assuming the response is in JSON format
+//         return data;
+//     } catch (error) {
+//         console.error('Error refreshing token:', error);
+//         // Handle the error, e.g., log it or take appropriate action
+//     }
+// }
 
 function sendMessage(message) {
     let opts = {
         identity: {
-            username: 'test',
+            username: 'kahyogbot',
             password: `oauth:${accessToken}`
         },
         channels: ['kahyo_gms']
@@ -158,16 +158,16 @@ app.post('/starforce', (req, res) => {
 
         // Get JSON object from body, so you can process the message.
         let notification = JSON.parse(req.body);
-        (async () => {
-            try {
-                const result = await getToken();
-                console.log(result);
-                refreshToken = data.refresh_token;
-                accessToken = data.access_token;
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        })();
+        // (async () => {
+        //     try {
+        //         const result = await getToken();
+        //         console.log(result);
+        //         refreshToken = data.refresh_token;
+        //         accessToken = data.access_token;
+        //     } catch (error) {
+        //         console.error('Error:', error);
+        //     }
+        // })();
         if (MESSAGE_TYPE_NOTIFICATION === req.headers[MESSAGE_TYPE]) {
             console.log("start");
             if (Math.random() < successRates[ratge.stars]) {
