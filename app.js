@@ -95,17 +95,15 @@ const decreaseRates = [
 //         // Handle the error, e.g., log it or take appropriate action
 //     }
 // }
-let opts = {
+const client = new tmi.Client({
     identity: {
         username: 'kahyogbot',
         password: `oauth:${accessToken}`
     },
     channels: ['kahyo_gms']
-};
+});
 
-const client = new tmi.Client(opts);
-
-client.connect();
+client.connect().catch();
 function sendMessage(message) {
     
     client.say("kahyo_gms", message);
