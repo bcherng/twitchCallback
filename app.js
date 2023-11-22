@@ -136,7 +136,11 @@ app.get("/", (req, res) => {
 
 app.get("/results", (req, res) => {
     res.setHeader('Content-Type', 'application/json');
-    res.send({entry: ratge.results.length, result: ratge.results.slice(-1)});
+    res.send(
+        {
+            entry: ratge.results.length, 
+            result: ratge.results.slice(-1)
+        });
 })
 
 app.get("/starforce", (req, res) => {

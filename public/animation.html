@@ -24,7 +24,7 @@
           if (data.entry && data.result) {
             if (data.entry != index) {
               index = data.entry;
-              switch (data.result) {
+              switch (data.result[0]) {
                 case "success":
                   document.getElementById("display").src = success.src;
                   break;
