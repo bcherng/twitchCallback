@@ -166,6 +166,7 @@ app.post('/starforce', (req, res) => {
                 ratge.results.push("failure");
                 connection.send('PRIVMSG #kahyo_gms :Failed(Drop) -> Ratge is now ' + ratge.stars + ' stars');
             } else if (decreaseRates[ratge.stars] == 0) {
+                ratge.results.push("failure");
                 connection.send('PRIVMSG #kahyo_gms :Failed(Maintain) -> Ratge is ' + ratge.stars + " stars");
             } else {
                 ratge.stars = 12; 
