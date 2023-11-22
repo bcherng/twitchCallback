@@ -3,10 +3,80 @@ const express = require('express');
 const app = express();
 const port = 443;
 const path = require('path');
+const { Client } = require('pg')
+
+function getSecret() {
+    // TODO: Get secret from secure storage. This is the secret you pass
+    // when you subscribed to the event.
+    return process.env.secret;;
+}
+
+// Build the message used to get the HMAC.
+function getHmacMessage(request) {
+    return (request.headers[TWITCH_MESSAGE_ID] +
+        request.headers[TWITCH_MESSAGE_TIMESTAMP] +
+        request.body);
+}
+
+// Get the HMAC.
+function getHmac(secret, message) {
+    return crypto.createHmac('sha256', secret)
+        .update(message)
+        .digest('hex');
+}
+
+// Verify whether our hash matches the hash that Twitch passed in the header.
+function verifyMessage(hmac, verifySignature) {
+    return crypto.timingSafeEqual(Buffer.from(hmac), Buffer.from(verifySignature));
+}
+
+const client = new Client({
+    connectionString: "postgres://default:XFSq74fhtGCp@ep-twilight-field-19232688-pooler.us-east-1.postgres.vercel-storage.com:5432/verceldb?sslmode=require",
+})
+
+async function connectToDatabase() {
+    try {
+        await client.connect();
+        console.log('Connected to the PostgreSQL database');
+    } catch (error) {
+        console.error('Error connecting to the PostgreSQL database:', error);
+    }
+}
+connectToDatabase();
+
+// Your other functions can now use the connected database
+async function initializeDB() {
+    try {
+        const result = await client.query('CREATE TABLE IF NOT EXISTS ratge_table (id SERIAL PRIMARY KEY,stars INT,results TEXT[]);');
+        console.log('Query result:', result.rows);
+    } catch (error) {
+        console.error('Error executing PostgreSQL query:', error);
+    }
+}
+initializeDB();
+
 const ratge = {
     stars: 0,
     results: []
 };
+
+async function updateRatge() {
+    try {
+        const result = await client.query('UPDATE ratge_table SET stars = $1, results = $2 WHERE id = $3', [ratge.stars, ratge.results, 1]);
+        console.log('Query result:', result.rows);
+    } catch (error) {
+        console.error('Error executing PostgreSQL query:', error);
+    }
+}
+async function downloadRatge() {
+    try {
+        const result = await client.query('SELECT stars, results FROM ratge_table where id = $1', [1]);
+        ratge.stars = result.rows[0].stars;
+        ratge.results = result.rows[0].results; 
+    } catch (error) {
+        console.error('Error executing PostgreSQL query:', error);
+    }
+}
 let accessToken = process.env.token;
 let refreshToken = process.env.refreshToken;
 const client_id = process.env.clientID;
@@ -90,7 +160,7 @@ connection.onerror = (error) => {
 connection.onmessage = (event) => {
     if (event.type === 'message') {
       const message = event.data;
-  
+
       if (message.startsWith('PING')) {
         // Respond to PING with PONG to keep the connection alive
         connection.send('PONG :tmi.twitch.tv');
@@ -100,12 +170,12 @@ connection.onmessage = (event) => {
       }
     }
   };
-  
+
 
 connection.onclose = () => {
     console.log('WebSocket Connection Closed');
   };
-  
+
 
 let counter = 0;
 
@@ -134,7 +204,8 @@ app.get("/", (req, res) => {
     res.end("The counter is: " + counter);
 })
 
-app.get("/results", (req, res) => {
+app.get("/results", async (req, res) => {
+    await downloadRatge();
     res.setHeader('Content-Type', 'application/json');
     res.send(
         {
@@ -143,10 +214,11 @@ app.get("/results", (req, res) => {
         });
 })
 
-app.get("/starforce", (req, res) => {
+app.get("/starforce", async (req, res) => {
+    await downloadRatge();
     res.setHeader('Content-Type', 'text/plain');
     res.end(ratge.stars.toString());
-})
+});
 
 app.post('/starforce', (req, res) => {
     let secret = getSecret();
@@ -173,6 +245,7 @@ app.post('/starforce', (req, res) => {
                 ratge.results.push("destroy");
                 connection.send('PRIVMSG #kahyo_gms :Destroyed -> Ratge is back to 12 stars');
             }
+            updateRatge();
             console.log("finish");
             res.sendStatus(204);
         } else if (MESSAGE_TYPE_VERIFICATION === req.headers[MESSAGE_TYPE]) {
@@ -241,61 +314,4 @@ app.listen(port, () => {
 })
 
 
-function getSecret() {
-    // TODO: Get secret from secure storage. This is the secret you pass 
-    // when you subscribed to the event.
-    return process.env.secret;;
-}
-
-// Build the message used to get the HMAC.
-function getHmacMessage(request) {
-    return (request.headers[TWITCH_MESSAGE_ID] +
-        request.headers[TWITCH_MESSAGE_TIMESTAMP] +
-        request.body);
-}
-
-// Get the HMAC.
-function getHmac(secret, message) {
-    return crypto.createHmac('sha256', secret)
-        .update(message)
-        .digest('hex');
-}
-
-// Verify whether our hash matches the hash that Twitch passed in the header.
-function verifyMessage(hmac, verifySignature) {
-    return crypto.timingSafeEqual(Buffer.from(hmac), Buffer.from(verifySignature));
-}
-
-
-
-
 module.exports = app;
-
-
-// async function getToken() {
-//     try {
-//         const body = new URLSearchParams({
-//             'grant_type': 'refresh_token',
-//             'refresh_token': refreshToken,
-//             'client_id': client_id,
-//             'client_secret': client_secret
-//         });
-//         const response = await fetch("https://id.twitch.tv/oauth2/token", {
-//             method: 'POST',
-//             headers: {
-//                 'Content-Type': 'application/x-www-form-urlencoded',
-//             },
-//             body: body
-//         });
-
-//         if (!response.ok) {
-//             throw new Error(`HTTP error! Status: ${response.status}`);
-//         }
-
-//         const data = await response.json(); // Assuming the response is in JSON format
-//         return data;
-//     } catch (error) {
-//         console.error('Error refreshing token:', error);
-//         // Handle the error, e.g., log it or take appropriate action
-//     }
-// }
