@@ -9,7 +9,7 @@
   <img id="playOnceGif" alt="">
   <script>
     function updateGif() {
-      fetch('/lastResult')
+      fetch('/animation')
         .then(response => response.blob())
         .then(data => {
           // Update the GIF source
@@ -20,7 +20,7 @@
           document.getElementById('playOnceGif').style.animationPlayState = 'running';
         })
         .catch(error => {
-          console.error('Error fetching /lastResult:', error);
+          console.error('Error fetching /animation:', error);
         });
     }
 
