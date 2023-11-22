@@ -18,7 +18,7 @@
     var destroy = new Image();
     destroy.src = "/destroy.gif";
     function updateGif() {
-      fetch('/animation')
+      fetch('/result')
         .then(response => response.json())
         .then(data => {
           if (data.entry && data.result) {
@@ -26,14 +26,13 @@
               index = data.entry;
               switch (data.result) {
                 case "success":
-                  document.getElementById("display").src = success;
+                  document.getElementById("display").src = success.src;
                   break;
                 case "failure":
-                  document.getElementById("display").src = failure;
+                  document.getElementById("display").src = failure.src;
                   break;
                 case "destroy":
-
-                  document.getElementById("display").src = destroy;
+                  document.getElementById("display").src = destroy.src;
                   break;
                 default:
               }
