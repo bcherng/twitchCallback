@@ -133,7 +133,7 @@ app.get("/", (req, res) => {
     res.end("The counter is: " + counter);
 })
 
-app.get("/animation", (req, res) => {
+app.get("/lastResult", (req, res) => {
   res.sendFile(path.join(__dirname,`${ratge.lastResult}.gif`));
 })
 
