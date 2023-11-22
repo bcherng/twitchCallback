@@ -134,7 +134,7 @@ app.get("/", (req, res) => {
 })
 
 app.get("/animation", (req, res) => {
-  res.sendFile(path.join(__dirname,`/${ratge.lastResult}.gif`));
+    res.sendFile(path.join(__dirname, 'public', `${ratge.lastResult}.gif`));
 })
 
 app.get("/starforce", (req, res) => {
