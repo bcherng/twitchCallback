@@ -18,7 +18,7 @@
     var destroy = new Image();
     destroy.src = "/destroy.gif";
     function updateGif() {
-      fetch('/result')
+      fetch('/results')
         .then(response => response.json())
         .then(data => {
           if (data.entry && data.result) {
