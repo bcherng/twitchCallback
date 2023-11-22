@@ -10,10 +10,11 @@
   <script>
     function updateGif() {
       fetch('/animation')
-        .then(response => response.text())
+        .then(response => response.blob())
         .then(data => {
           // Update the GIF source
-          document.getElementById('playOnceGif').src = data;
+          const imageUrl = URL.createObjectURL(data);
+          document.getElementById('playOnceGif').src = imageUrl;
 
           // Reset animation play state to play the new GIF
           document.getElementById('playOnceGif').style.animationPlayState = 'running';
