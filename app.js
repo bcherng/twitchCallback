@@ -154,13 +154,13 @@ app.post('/starforce', (req, res) => {
             if (Math.random() < successRates[ratge.stars]) {
                 ratge.stars += 1;
                 ratge.lastResult = "success";
-                connection.send('PRIVMSG #kahyo_gms :Sucess -> Ratge is now ' + ratge.stars + ' stars');
+                connection.send('PRIVMSG #kahyo_gms :Success -> Ratge is now ' + ratge.stars + ' stars');
             } else if (Math.random() < decreaseRates[ratge.stars]) {
                 ratge.stars -= 1;
                 ratge.lastResult = "failure";
                 connection.send('PRIVMSG #kahyo_gms :Failed(Drop) -> Ratge is now ' + ratge.stars + ' stars');
             } else if (decreaseRates[ratge.stars] == 0) {
-                connection.send('PRIVMSG #kahyo_gms :Failed(Maintain) Ratge is ' + ratge.stars + " stars");
+                connection.send('PRIVMSG #kahyo_gms :Failed(Maintain) -> Ratge is ' + ratge.stars + " stars");
             } else {
                 ratge.stars = 12; 
                 ratge.lastResult = "destroy";
