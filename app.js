@@ -57,9 +57,10 @@ initializeDB();
 
 const ratge = {
     stars: 0,
-    results: []
+    results: [],
+    fails: 0
 };
-let fails = 0;
+
 async function updateRatge() {
     try {
         const result = await client.query('UPDATE ratge_table SET stars = $1, results = $2 WHERE id = $3', [ratge.stars, ratge.results, 1]);
@@ -68,11 +69,24 @@ async function updateRatge() {
         console.error('Error executing PostgreSQL query:', error);
     }
 }
+
+async function alterTable() {
+    try {
+        const result = await client.query('ALTER TABLE ratge_table ADD COLUMN fails TINYINT');
+        console.log('Query result:', result.rows);
+    } catch (error) {
+        console.error('Error executing PostgreSQL query:', error);
+    }
+    updateRatge();
+}
+alterTable();
+
+
 async function downloadRatge() {
     try {
         const result = await client.query('SELECT stars, results FROM ratge_table where id = $1', [1]);
         ratge.stars = result.rows[0].stars;
-        ratge.results = result.rows[0].results; 
+        ratge.results = result.rows[0].results;
     } catch (error) {
         console.error('Error executing PostgreSQL query:', error);
     }
@@ -146,35 +160,35 @@ const twitchOAuthToken = 'oauth:4dm1ikh4capesl2po4jlap9logf0l4';
 const connection = new WebSocket(twitchWebSocketUrl);
 
 connection.onopen = () => {
-  console.log('WebSocket Connection Opened');
+    console.log('WebSocket Connection Opened');
 
-  // Send PASS and NICK commands to authenticate with Twitch
-  connection.send(`PASS ${twitchOAuthToken}`);
-  connection.send(`NICK ${twitchUsername}`);
+    // Send PASS and NICK commands to authenticate with Twitch
+    connection.send(`PASS ${twitchOAuthToken}`);
+    connection.send(`NICK ${twitchUsername}`);
 };
 
 connection.onerror = (error) => {
-  console.error(`WebSocket Error: ${error}`);
+    console.error(`WebSocket Error: ${error}`);
 };
 
 connection.onmessage = (event) => {
     if (event.type === 'message') {
-      const message = event.data;
+        const message = event.data;
 
-      if (message.startsWith('PING')) {
-        // Respond to PING with PONG to keep the connection alive
-        connection.send('PONG :tmi.twitch.tv');
-      } else {
-        // Handle Twitch chat messages here
-        console.log('Received message:', message);
-      }
+        if (message.startsWith('PING')) {
+            // Respond to PING with PONG to keep the connection alive
+            connection.send('PONG :tmi.twitch.tv');
+        } else {
+            // Handle Twitch chat messages here
+            console.log('Received message:', message);
+        }
     }
-  };
+};
 
 
 connection.onclose = () => {
     console.log('WebSocket Connection Closed');
-  };
+};
 
 
 let counter = 0;
@@ -205,17 +219,17 @@ app.get("/", (req, res) => {
 })
 
 app.get("/results", async (req, res) => {
-    await downloadRatge();
+    downloadRatge();
     res.setHeader('Content-Type', 'application/json');
     res.send(
         {
-            entry: ratge.results.length, 
+            entry: ratge.results.length,
             result: ratge.results.slice(-1)
         });
 })
 
 app.get("/starforce", async (req, res) => {
-    await downloadRatge();
+    downloadRatge();
     res.setHeader('Content-Type', 'text/plain');
     res.end(ratge.stars.toString());
 });
@@ -226,54 +240,55 @@ app.post('/starforce', (req, res) => {
     let hmac = HMAC_PREFIX + getHmac(secret, message);  // Signature to compare
 
     if (true === verifyMessage(hmac, req.headers[TWITCH_MESSAGE_SIGNATURE])) {
-        let notification = JSON.parse(req.body);
-        if (MESSAGE_TYPE_NOTIFICATION === req.headers[MESSAGE_TYPE]) {
-            console.log("start");
-            if (fails >= 2) {
-                fails = 0;
-                ratge.stars += 1;
-                ratge.results.push("success");
-                connection.send('PRIVMSG #kahyo_gms :Success(Chance) -> Ratge is now ' + ratge.stars + ' stars');
-            } else if (Math.random() <= successRates[ratge.stars]) {
-                ratge.stars += 1;
-                ratge.results.push("success");
-                connection.send('PRIVMSG #kahyo_gms :Success -> Ratge is now ' + ratge.stars + ' stars');
-            } else {
-                if (Math.random() > 1 - decreaseRates[ratge.stars]) {
-                    ratge.stars = 12; 
-                    ratge.results.push("destroy");
-                    connection.send('PRIVMSG #kahyo_gms :Destroyed -> Ratge is back to 12 stars');
+        downloadRatge().then(() => {
+            let notification = JSON.parse(req.body);
+            if (MESSAGE_TYPE_NOTIFICATION === req.headers[MESSAGE_TYPE]) {
+                console.log("start");
+                if (ratge.fails >= 2) {
+                    ratge.fails = 0;
+                    ratge.stars += 1;
+                    ratge.results.push("success");
+                    connection.send('PRIVMSG #kahyo_gms :Success(Chance) -> Ratge is now ' + ratge.stars + ' stars');
+                } else if (Math.random() <= successRates[ratge.stars]) {
+                    ratge.stars += 1;
+                    ratge.results.push("success");
+                    connection.send('PRIVMSG #kahyo_gms :Success -> Ratge is now ' + ratge.stars + ' stars');
                 } else {
-                    if (decreaseRates[ratge.stars] == 0) { 
-                        ratge.results.push("failure");
-                        connection.send('PRIVMSG #kahyo_gms :Failed(Maintain) -> Ratge is ' + ratge.stars + " stars");
+                    if (Math.random() > 1 - decreaseRates[ratge.stars]) {
+                        ratge.stars = 12;
+                        ratge.results.push("destroy");
+                        connection.send('PRIVMSG #kahyo_gms :Destroyed -> Ratge is back to 12 stars');
                     } else {
-                        ratge.stars -= 1;
-                        ratge.results.push("failure");
-                        fails++;
-                        connection.send('PRIVMSG #kahyo_gms :Failed(Drop) -> Ratge is now ' + ratge.stars + ' stars');
+                        if (decreaseRates[ratge.stars] == 0) {
+                            ratge.results.push("failure");
+                            connection.send('PRIVMSG #kahyo_gms :Failed(Maintain) -> Ratge is ' + ratge.stars + " stars");
+                        } else {
+                            ratge.stars -= 1;
+                            ratge.results.push("failure");
+                            ratge.fails++;
+                            connection.send('PRIVMSG #kahyo_gms :Failed(Drop) -> Ratge is now ' + ratge.stars + ' stars');
+                        }
                     }
                 }
+                updateRatge();
+                console.log("finish");
+                res.sendStatus(204);
+            } else if (MESSAGE_TYPE_VERIFICATION === req.headers[MESSAGE_TYPE]) {
+                res.set('Content-Type', 'text/plain').status(200).send(notification.challenge);
             }
-            updateRatge();
-            console.log("finish");
-            res.sendStatus(204);
-        } else if (MESSAGE_TYPE_VERIFICATION === req.headers[MESSAGE_TYPE]) {
-            res.set('Content-Type', 'text/plain').status(200).send(notification.challenge);
-        }
-        else if (MESSAGE_TYPE_REVOCATION === req.headers[MESSAGE_TYPE]) {
-            res.sendStatus(204);
+            else if (MESSAGE_TYPE_REVOCATION === req.headers[MESSAGE_TYPE]) {
+                res.sendStatus(204);
 
-            console.log(`${notification.subscription.type} notifications revoked!`);
-            console.log(`reason: ${notification.subscription.status}`);
-            console.log(`condition: ${JSON.stringify(notification.subscription.condition, null, 4)}`);
-        }
-        else {
-            res.sendStatus(204);
-            console.log(`Unknown message type: ${req.headers[MESSAGE_TYPE]}`);
-        }
-    }
-    else {
+                console.log(`${notification.subscription.type} notifications revoked!`);
+                console.log(`reason: ${notification.subscription.status}`);
+                console.log(`condition: ${JSON.stringify(notification.subscription.condition, null, 4)}`);
+            }
+            else {
+                res.sendStatus(204);
+                console.log(`Unknown message type: ${req.headers[MESSAGE_TYPE]}`);
+            }
+        });
+    } else {
         console.log('403');    // Signatures didn't match.
         res.sendStatus(403);
     }
