@@ -59,7 +59,7 @@ const ratge = {
     stars: 0,
     results: []
 };
-
+let fails = 0;
 async function updateRatge() {
     try {
         const result = await client.query('UPDATE ratge_table SET stars = $1, results = $2 WHERE id = $3', [ratge.stars, ratge.results, 1]);
@@ -229,17 +229,25 @@ app.post('/starforce', (req, res) => {
         let notification = JSON.parse(req.body);
         if (MESSAGE_TYPE_NOTIFICATION === req.headers[MESSAGE_TYPE]) {
             console.log("start");
-            if (Math.random() < successRates[ratge.stars]) {
+            if (fails >= 2) {
+                fails = 0;
+                ratge.stars += 1;
+                ratge.results.push("success");
+                connection.send('PRIVMSG #kahyo_gms :Success(Chance) -> Ratge is now ' + ratge.stars + ' stars');
+            } else if (Math.random() < successRates[ratge.stars]) {
                 ratge.stars += 1;
                 ratge.results.push("success");
                 connection.send('PRIVMSG #kahyo_gms :Success -> Ratge is now ' + ratge.stars + ' stars');
             } else if (Math.random() < decreaseRates[ratge.stars]) {
-                ratge.stars -= 1;
-                ratge.results.push("failure");
-                connection.send('PRIVMSG #kahyo_gms :Failed(Drop) -> Ratge is now ' + ratge.stars + ' stars');
-            } else if (decreaseRates[ratge.stars] == 0) {
-                ratge.results.push("failure");
-                connection.send('PRIVMSG #kahyo_gms :Failed(Maintain) -> Ratge is ' + ratge.stars + " stars");
+                if (decreaseRates[ratge.stars] == 0) {
+                    ratge.results.push("failure");
+                    connection.send('PRIVMSG #kahyo_gms :Failed(Maintain) -> Ratge is ' + ratge.stars + " stars");
+                } else {
+                    ratge.stars -= 1;
+                    ratge.results.push("failure");
+                    fails++;
+                    connection.send('PRIVMSG #kahyo_gms :Failed(Drop) -> Ratge is now ' + ratge.stars + ' stars');
+                }
             } else {
                 ratge.stars = 12; 
                 ratge.results.push("destroy");
