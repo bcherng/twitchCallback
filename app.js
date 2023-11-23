@@ -122,7 +122,7 @@ const successRates = [
     0.02,    //23
     0.01,    //24
 ];
-const decreaseRates = [
+const boomRates = [
     0,   //0
     0,    //1
     0,   //2
@@ -139,15 +139,15 @@ const decreaseRates = [
     0,   //13
     0,   //14
     0,   //15
-    0.97,   //16
-    0.97,   //17
-    0.96,   //18
-    0.97,   //19
-    0,   //20
-    0.9,   //21
-    0.8,   //22
-    0.7,    //23
-    0.6,    //24
+    0.03,   //16
+    0.03,   //17
+    0.04,   //18
+    0.04,   //19
+    0.1,   //20
+    0.1,   //21
+    0.2,  //22
+    0.3,    //23
+    0.4,    //24
 ]
 
 const WebSocket = require('websocket').w3cwebsocket;
@@ -253,12 +253,12 @@ app.post('/starforce', (req, res) => {
                     ratge.results.push("success");
                     connection.send('PRIVMSG #kahyo_gms :Success -> Ratge is now ' + ratge.stars + ' stars');
                 } else {
-                    if (Math.random() > 1 - decreaseRates[ratge.stars]) {
+                    if (Math.random() < boomRates[ratge.stars]) {
                         ratge.stars = 12;
                         ratge.results.push("destroy");
                         connection.send('PRIVMSG #kahyo_gms :Destroyed -> Ratge is back to 12 stars');
                     } else {
-                        if (decreaseRates[ratge.stars] == 0) {
+                        if (ratge.stars == 15 || ratge.stars == 20) {
                             ratge.results.push("failure");
                             connection.send('PRIVMSG #kahyo_gms :Failed(Maintain) -> Ratge is ' + ratge.stars + " stars");
                         } else {
