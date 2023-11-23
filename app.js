@@ -250,6 +250,7 @@ app.post('/starforce', (req, res) => {
                     connection.send('PRIVMSG #kahyo_gms :Success(Chance) -> Ratge is now ' + ratge.stars + ' stars');
                 } else if (Math.random() <= successRates[ratge.stars]) {
                     ratge.stars += 1;
+                    ratge.fails = 0;
                     ratge.results.push("success");
                     connection.send('PRIVMSG #kahyo_gms :Success -> Ratge is now ' + ratge.stars + ' stars');
                 } else {
