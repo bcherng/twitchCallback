@@ -79,7 +79,6 @@ async function alterTable() {
     }
     updateRatge();
 }
-alterTable();
 
 
 async function downloadRatge() {
