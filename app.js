@@ -47,7 +47,7 @@ connectToDatabase();
 // Your other functions can now use the connected database
 async function initializeDB() {
     try {
-        const result = await client.query('CREATE TABLE IF NOT EXISTS ratge_table (id SERIAL PRIMARY KEY,stars INT,results TEXT[]);');
+        const result = await client.query('CREATE TABLE IF NOT EXISTS ratge_table (id SERIAL PRIMARY KEY,stars INT,results TEXT[],fails TINYINT);');
         console.log('Query result:', result.rows);
     } catch (error) {
         console.error('Error executing PostgreSQL query:', error);
