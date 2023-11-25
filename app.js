@@ -247,28 +247,28 @@ app.post('/starforce', (req, res) => {
                     ratge.fails = 0;
                     ratge.stars += 1;
                     ratge.results.push("success");
-                    connection.send('PRIVMSG #kahyo_gms :Success(Chance) -> Ratge is now ' + ratge.stars + ' stars');
+                    connection.send('PRIVMSG #kahyog :Success(Chance) -> Ratge is now ' + ratge.stars + ' stars');
                 } else if (Math.random() <= successRates[ratge.stars]) {
                     ratge.stars += 1;
                     ratge.fails = 0;
                     ratge.results.push("success");
-                    connection.send('PRIVMSG #kahyo_gms :Success -> Ratge is now ' + ratge.stars + ' stars');
+                    connection.send('PRIVMSG #kahyog :Success -> Ratge is now ' + ratge.stars + ' stars');
                 } else {
                     if (Math.random() < boomRates[ratge.stars]) {
                         ratge.stars = 12;
                         ratge.fails = 0;
                         ratge.results.push("destroy");
-                        connection.send('PRIVMSG #kahyo_gms :Destroyed -> Ratge is back to 12 stars');
+                        connection.send('PRIVMSG #kahyog :Destroyed -> Ratge is back to 12 stars');
                     } else {
                         if (ratge.stars <= 15 || ratge.stars == 20) {
                             ratge.fails = 0;
                             ratge.results.push("failure");
-                            connection.send('PRIVMSG #kahyo_gms :Failed(Maintain) -> Ratge is ' + ratge.stars + " stars");
+                            connection.send('PRIVMSG #kahyog :Failed(Maintain) -> Ratge is ' + ratge.stars + " stars");
                         } else {
                             ratge.stars -= 1;
                             ratge.results.push("failure");
                             ratge.fails++;
-                            connection.send('PRIVMSG #kahyo_gms :Failed(Drop) -> Ratge is now ' + ratge.stars + ' stars');
+                            connection.send('PRIVMSG #kahyog :Failed(Drop) -> Ratge is now ' + ratge.stars + ' stars');
                         }
                     }
                 }
